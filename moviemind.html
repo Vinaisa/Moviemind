@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MovieMind — Find Your Next Favourite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#03090d; --panel:#071419; --panel2:#0a1c22;
+  --cyan:#00e5ed; --yellow:#ffd32a; --text:#f5f8fa;
+  --muted:#9aabb5; --border:rgba(0,229,237,.19);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+a{color:inherit;text-decoration:none}
+.layout{min-height:100vh}
+.sidebar{position:fixed;inset:0 auto 0 0;width:248px;padding:26px 20px;background:rgba(3,12,16,.96);border-right:1px solid var(--border);z-index:5;overflow-y:auto}
+.logo{font-size:25px;font-weight:900;letter-spacing:-1.4px}
+.logo span{color:var(--cyan)}
+.tagline{color:#bdc8ce;font-size:13px;margin-top:5px;margin-bottom:30px}
+.nav{display:grid;gap:8px}
+.nav button,.genre-link{width:100%;border:1px solid transparent;background:none;color:#d7e1e6;text-align:left;padding:13px 14px;border-radius:13px;font-size:14px}
+.nav button:hover,.nav button.active,.genre-link:hover{background:rgba(0,229,237,.11);border-color:var(--border);color:var(--cyan)}
+.side-label{font-size:10px;letter-spacing:2px;color:#82959f;margin:27px 0 10px 8px;font-weight:700}
+.genre-link{padding:9px 10px}
+.side-note{margin-top:28px;border:1px solid rgba(255,211,42,.27);border-radius:17px;padding:17px;background:linear-gradient(135deg,rgba(255,211,42,.12),rgba(0,229,237,.03))}
+.side-note b{color:var(--yellow);font-size:13px}
+.side-note p{color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:0}
+main{margin-left:248px;padding:0 28px 40px;max-width:1800px}
+.topbar{height:68px;display:flex;align-items:center;justify-content:flex-end;border-bottom:1px solid rgba(255,255,255,.07);gap:12px}
+.status{font-size:11px;color:var(--muted)}
+.status i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--cyan);margin-right:7px}
+.hero{min-height:500px;margin-top:20px;border:1px solid var(--border);border-radius:24px;overflow:hidden;position:relative;background:#07151b url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=2000&q=85') center 43%/cover}
+.hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(1,8,12,.98) 0%,rgba(1,8,12,.84) 40%,rgba(1,8,12,.17) 100%),linear-gradient(0deg,rgba(1,8,12,.65),transparent 70%)}
+.hero-content{position:relative;z-index:1;padding:65px 48px;max-width:780px}
+.eyebrow{color:var(--cyan);font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase}
+h1{font-size:clamp(38px,4.5vw,66px);line-height:1.04;letter-spacing:-2.8px;margin:19px 0 18px;font-weight:900}
+h1 span{color:var(--yellow)}
+.hero-desc{max-width:510px;color:#d3dde2;font-size:15px;line-height:1.8}
+.searchbar{display:flex;gap:8px;margin-top:27px;padding:7px;background:rgba(3,12,16,.94);border:1px solid var(--cyan);border-radius:15px;max-width:680px;box-shadow:0 0 25px rgba(0,229,237,.1)}
+.searchbar input{min-width:0;flex:1;background:transparent;border:0;outline:0;color:white;padding:13px 12px;font-size:14px}
+.searchbar button{border:0;background:var(--yellow);color:#101316;font-weight:800;border-radius:10px;padding:0 22px;white-space:nowrap}
+.searchbar button:hover{filter:brightness(1.08)}
+.examples{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:17px;font-size:12px;color:#b7c4cb}
+.chip{border:1px solid var(--border);background:rgba(2,15,20,.72);border-radius:30px;color:white;padding:8px 13px;font-size:12px}
+.chip:hover{border-color:var(--cyan);color:var(--cyan)}
+.content-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;margin-top:30px}
+.section{margin-bottom:32px;min-width:0}
+.section-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:15px}
+.section-head h2{font-size:21px;letter-spacing:-.6px;margin:0}
+.section-head p{font-size:12px;color:var(--muted);margin:7px 0 0}
+.link-button{background:none;border:0;color:var(--cyan);font-size:12px;font-weight:700;white-space:nowrap}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.movie-card{min-width:0;border:1px solid var(--border);background:linear-gradient(180deg,#0a1a20,#061015);border-radius:14px;overflow:hidden;transition:.2s;cursor:pointer}
+.movie-card:hover{transform:translateY(-4px);border-color:var(--cyan);box-shadow:0 10px 30px rgba(0,229,237,.09)}
+.poster-wrap{height:255px;position:relative;background:#102027;overflow:hidden}
+.poster{width:100%;height:100%;object-fit:cover;display:block}
+.rating{position:absolute;bottom:10px;left:10px;background:rgba(2,9,13,.92);border:1px solid rgba(255,211,42,.45);border-radius:8px;padding:6px 8px;font-size:12px;font-weight:800}
+.rating span{color:var(--yellow)}
+.movie-info{padding:12px}
+.movie-title{font-size:13px;font-weight:800;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.movie-meta{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;min-height:32px}
+.movie-year{font-size:10px;color:var(--cyan);margin-top:8px}
+.right-panel{display:grid;gap:18px;align-content:start}
+.panel{border:1px solid var(--border);background:linear-gradient(150deg,#08191e,#050e12);border-radius:18px;padding:18px;min-width:0}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:17px}
+.panel-head h3{font-size:15px;margin:0}
+.flame{color:var(--yellow);font-size:20px;margin-right:7px}
+.trend-list{display:grid;gap:14px}
+.trend{display:grid;grid-template-columns:25px 52px minmax(0,1fr);gap:10px;align-items:center;cursor:pointer}
+.rank{font-size:13px;color:#c8d3d9}
+.trend img{width:52px;height:68px;object-fit:cover;border-radius:8px;background:#142329}
+.trend-title{font-size:12px;font-weight:700;line-height:1.4}
+.trend-sub{font-size:10px;color:var(--muted);margin-top:5px}
+.trend-score{font-size:11px;color:var(--yellow);margin-top:5px}
+.genre-bars{display:grid;gap:15px}
+.genre-row{display:grid;grid-template-columns:76px 1fr 30px;gap:8px;align-items:center;font-size:11px}
+.bar{height:8px;background:#17272c;border-radius:20px;overflow:hidden}
+.bar span{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,var(--cyan),#36a6ff)}
+.genre-row:nth-child(even) .bar span{background:linear-gradient(90deg,var(--yellow),#ff9e36)}
+.genre-row button{border:0;background:none;color:#dce5e9;text-align:left;padding:0;font-size:11px}
+.genre-row button:hover{color:var(--cyan)}
+.dataset-banner{display:flex;align-items:center;gap:14px;margin-top:18px;padding:18px;border:1px solid var(--border);border-radius:16px;background:rgba(0,229,237,.04)}
+.dataset-icon{font-size:29px;color:var(--cyan)}
+.dataset-banner b{color:var(--cyan);font-size:14px}
+.dataset-banner p{color:var(--muted);font-size:11px;line-height:1.5;margin:5px 0 0}
+#message{font-size:12px;color:var(--muted);padding:12px 0}
+#message.error{color:#ff8b8b}
+footer{border-top:1px solid var(--border);padding:22px 0;color:#83949d;font-size:11px;display:flex;justify-content:space-between;gap:10px}
+.hidden{display:none!important}
+@media(max-width:1200px){.content-grid{grid-template-columns:1fr}.right-panel{grid-template-columns:repeat(2,minmax(0,1fr))}.cards{grid-template-columns:repeat(4,minmax(0,1fr))}.poster-wrap{height:230px}}
+@media(max-width:800px){.sidebar{position:relative;width:100%;height:auto;padding:17px 18px}.logo{font-size:22px}.tagline{margin-bottom:10px}.nav{display:flex;flex-wrap:wrap}.nav button{width:auto;padding:9px 12px}.side-label,.genre-link,.side-note{display:none}main{margin:0;padding:0 15px 25px}.topbar{height:45px}.hero{margin-top:14px;min-height:430px}.hero-content{padding:45px 22px}.hero:before{background:linear-gradient(90deg,rgba(1,8,12,.95),rgba(1,8,12,.5)),linear-gradient(0deg,rgba(1,8,12,.6),transparent)}h1{font-size:43px}.searchbar button{padding:0 12px;font-size:12px}.content-grid{margin-top:23px}.cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.poster-wrap{height:230px}.right-panel{grid-template-columns:1fr}.section-head h2{font-size:18px}}
+
+
+/* MovieMind visual refinement */
+:root {
+  --bg: #03080c;
+  --panel: #071419;
+  --panel2: #0a1c22;
+  --cyan: #00e5ed;
+  --yellow: #ffd32a;
+  --text: #f5f8fa;
+  --muted: #b2c0c8;
+  --border: rgba(0,229,237,.22);
+}
+html { scroll-behavior: smooth; }
+body {
+  color: var(--text) !important;
+  background: var(--bg) !important;
+  font-size: 14px;
+}
+p, .tagline, .subtitle, .description, .movie-meta, .muted {
+  color: var(--muted);
+}
+h1, h2, h3, h4, .section-head, .movie-title {
+  color: var(--text) !important;
+}
+.sidebar {
+  background: rgba(3,12,16,.98) !important;
+  border-right-color: var(--border) !important;
+}
+main {
+  min-width: 0;
+  padding-bottom: 42px;
+}
+.hero {
+  min-height: 365px !important;
+  margin-top: 14px !important;
+  border-radius: 20px !important;
+  background-position: center 45% !important;
+}
+.hero-content {
+  padding: clamp(28px, 4vw, 58px) !important;
+}
+.hero h1, .hero h1 * {
+  color: #f7fafc !important;
+}
+.hero h1 span, .hero h1 strong, .hero .accent {
+  color: var(--yellow) !important;
+}
+.hero p {
+  color: #d4e0e5 !important;
+  line-height: 1.7;
+  max-width: 560px;
+}
+.searchbar {
+  max-width: 760px;
+  border-color: var(--cyan) !important;
+  box-shadow: 0 0 24px rgba(0,229,237,.08);
+}
+.searchbar input {
+  color: #fff !important;
+  min-width: 0;
+}
+.searchbar input::placeholder { color: #9aabb5 !important; }
+.searchbar button, .primary-btn, button.primary {
+  background: var(--yellow) !important;
+  color: #071014 !important;
+  font-weight: 800;
+  border-radius: 10px;
+}
+.content-grid {
+  align-items: start;
+  gap: 22px;
+  margin-top: 30px;
+}
+.section-head { margin-bottom: 14px; }
+.section-head h2 { font-size: 21px !important; }
+.cards {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+.movie-card {
+  background: linear-gradient(180deg, #0b1b21, #061015) !important;
+  border: 1px solid rgba(0,229,237,.20) !important;
+  border-radius: 13px !important;
+}
+.movie-card:hover {
+  border-color: var(--cyan) !important;
+  transform: translateY(-3px);
+}
+.poster-wrap {
+  height: 225px !important;
+  overflow: hidden;
+  background: #102027;
+}
+.poster-wrap img, .movie-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.right-panel > * {
+  background: rgba(7,20,25,.96);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+}
+button:not(.primary-btn):not(.searchbar button) {
+  transition: border-color .2s, background .2s;
+}
+button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 3px;
+}
+@media (min-width: 1500px) {
+  .hero { min-height: 390px !important; }
+  .cards { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .poster-wrap { height: 245px !important; }
+}
+@media (max-width: 1100px) {
+  .content-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .right-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+  .sidebar {
+    position: relative !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+  main { margin-left: 0 !important; padding: 12px !important; }
+  .hero { min-height: 330px !important; }
+  .hero-content { padding: 25px 18px !important; }
+  .hero h1 { font-size: clamp(32px, 9vw, 48px) !important; }
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .poster-wrap { height: 210px !important; }
+  .right-panel { grid-template-columns: 1fr !important; }
+}
+
+
+
+/* MovieMind visual refinement */
+:root {
+  --bg: #03080c;
+  --panel: #071419;
+  --panel2: #0a1c22;
+  --cyan: #00e5ed;
+  --yellow: #ffd32a;
+  --text: #f5f8fa;
+  --muted: #b2c0c8;
+  --border: rgba(0,229,237,.22);
+}
+html { scroll-behavior: smooth; }
+body {
+  color: var(--text) !important;
+  background: var(--bg) !important;
+  font-size: 14px;
+}
+p, .tagline, .subtitle, .description, .movie-meta, .muted {
+  color: var(--muted);
+}
+h1, h2, h3, h4, .section-head, .movie-title {
+  color: var(--text) !important;
+}
+.sidebar {
+  background: rgba(3,12,16,.98) !important;
+  border-right-color: var(--border) !important;
+}
+main {
+  min-width: 0;
+  padding-bottom: 42px;
+}
+.hero {
+  min-height: 365px !important;
+  margin-top: 14px !important;
+  border-radius: 20px !important;
+  background-position: center 45% !important;
+}
+.hero-content {
+  padding: clamp(28px, 4vw, 58px) !important;
+}
+.hero h1, .hero h1 * {
+  color: #f7fafc !important;
+}
+.hero h1 span, .hero h1 strong, .hero .accent {
+  color: var(--yellow) !important;
+}
+.hero p {
+  color: #d4e0e5 !important;
+  line-height: 1.7;
+  max-width: 560px;
+}
+.searchbar {
+  max-width: 760px;
+  border-color: var(--cyan) !important;
+  box-shadow: 0 0 24px rgba(0,229,237,.08);
+}
+.searchbar input {
+  color: #fff !important;
+  min-width: 0;
+}
+.searchbar input::placeholder { color: #9aabb5 !important; }
+.searchbar button, .primary-btn, button.primary {
+  background: var(--yellow) !important;
+  color: #071014 !important;
+  font-weight: 800;
+  border-radius: 10px;
+}
+.content-grid {
+  align-items: start;
+  gap: 22px;
+  margin-top: 30px;
+}
+.section-head { margin-bottom: 14px; }
+.section-head h2 { font-size: 21px !important; }
+.cards {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+.movie-card {
+  background: linear-gradient(180deg, #0b1b21, #061015) !important;
+  border: 1px solid rgba(0,229,237,.20) !important;
+  border-radius: 13px !important;
+}
+.movie-card:hover {
+  border-color: var(--cyan) !important;
+  transform: translateY(-3px);
+}
+.poster-wrap {
+  height: 225px !important;
+  overflow: hidden;
+  background: #102027;
+}
+.poster-wrap img, .movie-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.right-panel > * {
+  background: rgba(7,20,25,.96);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+}
+button:not(.primary-btn):not(.searchbar button) {
+  transition: border-color .2s, background .2s;
+}
+button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 3px;
+}
+@media (min-width: 1500px) {
+  .hero { min-height: 390px !important; }
+  .cards { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .poster-wrap { height: 245px !important; }
+}
+@media (max-width: 1100px) {
+  .content-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .right-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+  .sidebar {
+    position: relative !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+  main { margin-left: 0 !important; padding: 12px !important; }
+  .hero { min-height: 330px !important; }
+  .hero-content { padding: 25px 18px !important; }
+  .hero h1 { font-size: clamp(32px, 9vw, 48px) !important; }
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .poster-wrap { height: 210px !important; }
+  .right-panel { grid-template-columns: 1fr !important; }
+}
+
+
+
+/* MovieMind visual refinement */
+:root {
+  --bg: #03080c;
+  --panel: #071419;
+  --panel2: #0a1c22;
+  --cyan: #00e5ed;
+  --yellow: #ffd32a;
+  --text: #f5f8fa;
+  --muted: #b2c0c8;
+  --border: rgba(0,229,237,.22);
+}
+html { scroll-behavior: smooth; }
+body {
+  color: var(--text) !important;
+  background: var(--bg) !important;
+  font-size: 14px;
+}
+p, .tagline, .subtitle, .description, .movie-meta, .muted {
+  color: var(--muted);
+}
+h1, h2, h3, h4, .section-head, .movie-title {
+  color: var(--text) !important;
+}
+.sidebar {
+  background: rgba(3,12,16,.98) !important;
+  border-right-color: var(--border) !important;
+}
+main {
+  min-width: 0;
+  padding-bottom: 42px;
+}
+.hero {
+  min-height: 365px !important;
+  margin-top: 14px !important;
+  border-radius: 20px !important;
+  background-position: center 45% !important;
+}
+.hero-content {
+  padding: clamp(28px, 4vw, 58px) !important;
+}
+.hero h1, .hero h1 * {
+  color: #f7fafc !important;
+}
+.hero h1 span, .hero h1 strong, .hero .accent {
+  color: var(--yellow) !important;
+}
+.hero p {
+  color: #d4e0e5 !important;
+  line-height: 1.7;
+  max-width: 560px;
+}
+.searchbar {
+  max-width: 760px;
+  border-color: var(--cyan) !important;
+  box-shadow: 0 0 24px rgba(0,229,237,.08);
+}
+.searchbar input {
+  color: #fff !important;
+  min-width: 0;
+}
+.searchbar input::placeholder { color: #9aabb5 !important; }
+.searchbar button, .primary-btn, button.primary {
+  background: var(--yellow) !important;
+  color: #071014 !important;
+  font-weight: 800;
+  border-radius: 10px;
+}
+.content-grid {
+  align-items: start;
+  gap: 22px;
+  margin-top: 30px;
+}
+.section-head { margin-bottom: 14px; }
+.section-head h2 { font-size: 21px !important; }
+.cards {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+.movie-card {
+  background: linear-gradient(180deg, #0b1b21, #061015) !important;
+  border: 1px solid rgba(0,229,237,.20) !important;
+  border-radius: 13px !important;
+}
+.movie-card:hover {
+  border-color: var(--cyan) !important;
+  transform: translateY(-3px);
+}
+.poster-wrap {
+  height: 225px !important;
+  overflow: hidden;
+  background: #102027;
+}
+.poster-wrap img, .movie-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.right-panel > * {
+  background: rgba(7,20,25,.96);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+}
+button:not(.primary-btn):not(.searchbar button) {
+  transition: border-color .2s, background .2s;
+}
+button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 3px;
+}
+@media (min-width: 1500px) {
+  .hero { min-height: 390px !important; }
+  .cards { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .poster-wrap { height: 245px !important; }
+}
+@media (max-width: 1100px) {
+  .content-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .right-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+  .sidebar {
+    position: relative !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+  main { margin-left: 0 !important; padding: 12px !important; }
+  .hero { min-height: 330px !important; }
+  .hero-content { padding: 25px 18px !important; }
+  .hero h1 { font-size: clamp(32px, 9vw, 48px) !important; }
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .poster-wrap { height: 210px !important; }
+  .right-panel { grid-template-columns: 1fr !important; }
+}
+
+
+
+
+
+/* MovieMind compact poster cards */
+.cards {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  align-items: start !important;
+}
+.movie-card {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 116px !important;
+  overflow: hidden !important;
+}
+.poster-wrap {
+  flex: 0 0 67px !important;
+  width: 67px !important;
+  height: 98px !important;
+  min-height: 98px !important;
+  max-height: 98px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+.poster-wrap img,
+.movie-card img,
+img[src*="m.media-amazon.com"] {
+  width: 67px !important;
+  height: 98px !important;
+  max-width: 67px !important;
+  max-height: 98px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+.movie-info {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  padding: 8px !important;
+  overflow-wrap: anywhere !important;
+}
+.movie-title {
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+}
+.movie-meta, .movie-year {
+  font-size: 10px !important;
+  margin-top: 5px !important;
+}
+.rating {
+  font-size: 10px !important;
+  padding: 3px 5px !important;
+  z-index: 2 !important;
+}
+.trend-list {
+  display: grid !important;
+  gap: 10px !important;
+}
+@media (max-width: 1050px) {
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 650px) {
+  .cards { grid-template-columns: 1fr !important; }
+}
+
+
+/* MovieMind movie details popup */
+#movieDetailOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0,0,0,.82);
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+#movieDetailBox {
+  position: relative;
+  width: 100%;
+  max-width: 650px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  background: #08171c;
+  color: #f5fbfc;
+  border: 1px solid #00dce6;
+  border-radius: 16px;
+  padding: 24px;
+  line-height: 1.6;
+}
+#movieDetailBox h2 {
+  margin: 0 75px 14px 0;
+  overflow-wrap: anywhere;
+}
+#movieDetailBox p { overflow-wrap: anywhere; }
+#movieDetailBox .detail-rating {
+  color: #ffd52a;
+  font-weight: bold;
+}
+#movieDetailClose {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border: 0;
+  border-radius: 8px;
+  background: #123039;
+  color: white;
+}
+
+
+/* MovieMind compact poster layout */
+#movieCards, #collectionCards {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)) !important;
+  gap: 12px !important;
+  align-items: start !important;
+}
+.movie-card {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  padding: 10px !important;
+  overflow: hidden !important;
+  cursor: pointer !important;
+}
+.movie-card .poster-wrap {
+  position: relative !important;
+  width: 100% !important;
+  height: 108px !important;
+  min-height: 108px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+.movie-card .poster-wrap img {
+  width: 67px !important;
+  height: 98px !important;
+  max-width: 67px !important;
+  max-height: 98px !important;
+  object-fit: contain !important;
+  flex: none !important;
+}
+.movie-card .movie-info {
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 8px 0 0 !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+}
+.movie-card .movie-title {
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  line-height: 1.3 !important;
+  max-width: 100% !important;
+}
+.movie-card .movie-meta, .movie-card .movie-year {
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  line-height: 1.4 !important;
+}
+@media(max-width: 600px) {
+  #movieCards, #collectionCards {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+
+/* MovieMind trending sidebar layout repair */
+#trendingList .trend {
+  display:grid !important;
+  grid-template-columns:28px 68px minmax(0,1fr) !important;
+  align-items:center !important;
+  gap:10px !important;
+  padding:10px 0 !important;
+  min-width:0 !important;
+  height:auto !important;
+}
+#trendingList .trend > div { min-width:0 !important; }
+#trendingList .trend img {
+  display:block !important;
+  width:52px !important;
+  height:76px !important;
+  max-width:52px !important;
+  object-fit:contain !important;
+  border-radius:7px !important;
+}
+#trendingList .trend-title {
+  white-space:normal !important;
+  overflow-wrap:anywhere !important;
+  word-break:normal !important;
+  line-height:1.35 !important;
+}
+#trendingList .trend-sub {
+  white-space:normal !important;
+  overflow-wrap:anywhere !important;
+  line-height:1.35 !important;
+}
+#trendingList .trend-score { white-space:normal !important; }
+
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="logo">Movie<span>Mind</span> <span style="color:#ffd32a">✺</span></div>
+  <div class="tagline">Find your next favourite</div>
+  <nav class="nav">
+    <button class="active" id="homeBtn">⌂ &nbsp; Home</button>
+    <button id="exploreBtn">⌕ &nbsp; Explore all movies</button>
+  </nav>
+  <div class="side-label">BROWSE GENRES</div>
+  <div id="sidebarGenres">
+    <button class="genre-link" data-genre="Action">ϟ &nbsp; Action</button>
+    <button class="genre-link" data-genre="Adventure">♧ &nbsp; Adventure</button>
+    <button class="genre-link" data-genre="Comedy">☻ &nbsp; Comedy</button>
+    <button class="genre-link" data-genre="Drama">♧ &nbsp; Drama</button>
+    <button class="genre-link" data-genre="Sci-Fi">◎ &nbsp; Sci-Fi</button>
+    <button class="genre-link" data-genre="Thriller">◇ &nbsp; Thriller</button>
+    <button class="genre-link" data-genre="Romance">♡ &nbsp; Romance</button>
+    <button class="genre-link" data-genre="Horror">♧ &nbsp; Horror</button>
+    <button class="genre-link" data-genre="Animation">▧ &nbsp; Animation</button>
+  </div>
+  <div class="side-note"><b>Good movies, better moods ✦</b><p>Tell MovieMind what you love. Discover your next favourite film.</p></div>
+</aside>
+
+<main>
+  <div class="topbar"><span class="status"><i></i><span id="apiStatus">Connecting to MovieMind</span></span></div>
+
+  <section class="hero">
+    <div class="hero-content">
+      <div class="eyebrow">LESS SCROLLING. BETTER WATCHING.</div>
+      <h1>Find films that<br>feel like <span>you.</span></h1>
+      <div class="hero-desc">Name a movie you love. MovieMind explores its story, genre and cast to discover films you might love next.</div>
+      <div class="searchbar">
+        <input id="movieSearch" list="movieSuggestions" placeholder="⌕  Search a movie — e.g. Inception, The Dark Knight..." autocomplete="off">
+        <datalist id="movieSuggestions"></datalist>
+        <button id="findBtn">Find my films ↗</button>
+      </div>
+      <div class="examples">Try a classic:
+        <button class="chip" data-title="Inception">Inception</button>
+        <button class="chip" data-title="The Dark Knight">The Dark Knight</button>
+        <button class="chip" data-title="Interstellar">Interstellar</button>
+        
+        
+      </div>
+    </div>
+  </section>
+
+  <div id="message">Loading the original movie collection collection…</div>
+
+  <div class="content-grid">
+    <div>
+      <section class="section" id="resultsSection">
+        <div class="section-head"><div><h2 id="resultsTitle">Recommended for you</h2><p id="resultsSubtitle">Explore the collection or search for a film to get recommendations</p></div><button class="link-button" id="viewAllBtn">View all →</button></div>
+        <div class="cards" id="movieCards"></div>
+      </section>
+      <section class="section" id="collectionSection">
+        <div class="section-head"><div><h2 id="collectionTitle">Trending now</h2><p>Popular picks worth watching</p></div><button class="link-button" id="collectionAllBtn">View all →</button></div>
+        <div class="cards" id="collectionCards"></div>
+      </section>
+    </div>
+    <aside class="right-panel">
+      <section class="panel">
+        <div class="panel-head"><h3><span class="flame">♨</span>Trending Movies</h3><button class="link-button" id="trendingAll">View all →</button></div>
+        <div class="trend-list" id="trendingList"></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h3>▥ &nbsp; Top Genres</h3><button class="link-button" id="genreAll">Explore →</button></div>
+        <div class="genre-bars" id="genreBars"></div>
+      </section>
+      
+    </aside>
+  </div>
+  <footer><span>MovieMind · Content-based movie recommendations</span><span id="footerCount">Find your next favourite</span></footer>
+</main>
+</div>
+
+<script>
+
+function upgradePosterUrl(url) {
+  if (!url || typeof url !== "string") return url;
+  return url.replace(/\._V1_[^/]*?\.jpg(?:\?.*)?$/i,
+                     "._V1_FMjpg_UX1000.jpg");
+}
+
+
+const API_BASE = "";
+const API_HEADERS = {"ngrok-skip-browser-warning":"true"};
+let allMovies = [];
+let favourites = JSON.parse(localStorage.getItem("moviemind_favourites") || "[]");
+let activeMode = "home";
+
+function getTitle(m){return m.Display_Title || m.display_title || m.Series_Title || m.title || m.Title || "Untitled";}
+function getPoster(m){return m.Poster_Link || m.poster_link || m.poster || m.Poster || m.poster_url || "";}
+function getGenre(m){return m.Genre || m.genre || "Genre unavailable";}
+function getRating(m){return m.IMDB_Rating ?? m.imdb_rating ?? m.rating ?? m.Rating ?? "";}
+function getYear(m){return m.Released_Year || m.released_year || m.year || "";}
+function safeText(v){return String(v ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function posterFallback(title){
+ return "https://placehold.co/360x520/071419/00e5ed?text="+encodeURIComponent(title || "Movie poster");
+}
+function posterHTML(m){
+ const title=getTitle(m), url=getPoster(m);
+ return `<img class="poster" loading="lazy" src="${safeText(url || posterFallback(title))}" alt="${safeText(title)} poster" onerror="this.onerror=null;this.src='${posterFallback(title)}'">`;
+}
+function cardHTML(m){
+ const title=getTitle(m), rating=getRating(m), genre=getGenre(m), year=getYear(m);
+ return `<article class="movie-card" data-title="${safeText(title)}" title="Click to get recommendations">
+ <div class="poster-wrap">${posterHTML(m)}<div class="rating"><span>★</span> ${rating!==""?safeText(rating):"N/A"}</div></div>
+ <div class="movie-info"><div class="movie-title">${safeText(title)}</div><div class="movie-meta">${safeText(genre)}</div><div class="movie-year">${safeText(year)}</div></div></article>`;
+}
+function renderCards(target, movies){
+ const el=document.getElementById(target);
+ el.innerHTML=movies.length ? movies.map(cardHTML).join("") : "<p>No movies found.</p>";
+ el.querySelectorAll(".movie-card").forEach(card=>{
+   card.style.cursor="pointer";
+   card.addEventListener("click", event=>{
+     event.preventDefault();
+     event.stopPropagation();
+     if(window.openMovieDetails) window.openMovieDetails(card.dataset.title);
+   });
+ });
+}
+function setMessage(text,error=false){
+ const el=document.getElementById("message");el.textContent=text;el.className=error?"error":"";
+}
+function shuffledTop(){
+ return [...allMovies].sort((a,b)=>(Number(getRating(b))||0)-(Number(getRating(a))||0));
+}
+async function loadMovies(){
+ try{
+   const r=await fetch(API_BASE+"/api/all-movies",{headers:API_HEADERS});
+   if(!r.ok)throw new Error("Movie endpoint returned HTTP "+r.status);
+   const data=await r.json();
+   allMovies=Array.isArray(data)?data:(data.movies || data.results || data.data || []);
+   if(!allMovies.length)throw new Error("The API returned no movie list.");
+   document.getElementById("apiStatus").textContent="Connected · "+allMovies.length+" movies";
+   document.getElementById("footerCount").textContent=allMovies.length+" titles available";
+   document.getElementById("movieSuggestions").innerHTML=allMovies.map(m=>`<option value="${safeText(getTitle(m))}">`).join("");
+   const ranked=shuffledTop();
+   renderCards("movieCards",ranked.slice(0,12));
+   renderCards("collectionCards",ranked.slice(12,24));
+   document.getElementById("trendingList").innerHTML=ranked.slice(0,10).map((m,i)=>`
+    <div class="trend" data-title="${safeText(getTitle(m))}">
+      <div class="rank">${String(i+1).padStart(2,"0")}</div>
+      <div>${posterHTML(m).replace('class="poster"','style="width:52px;height:68px;object-fit:cover;border-radius:8px"')}</div>
+      <div><div class="trend-title">${safeText(getTitle(m))}</div><div class="trend-sub">${safeText(getGenre(m))}</div><div class="trend-score">★ ${safeText(getRating(m)||"N/A")}</div></div>
+    </div>`).join("");
+   document.querySelectorAll(".trend").forEach(el=>el.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();if(window.openMovieDetails)window.openMovieDetails(el.dataset.title);}));
+   renderGenres();
+   setMessage("All "+allMovies.length+" titles loaded. Search any movie in the collection to get recommendations.");
+ }catch(e){
+   document.getElementById("apiStatus").textContent="API connection failed";
+   setMessage("Could not load movies. Check that the Colab Flask API and ngrok tunnel are running, and that API_BASE is the current URL. Details: "+e.message,true);
+ }
+}
+function renderGenres(){
+ const counts={};
+ allMovies.forEach(m=>getGenre(m).split(",").forEach(g=>{g=g.trim();if(g)counts[g]=(counts[g]||0)+1;}));
+ const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+ const max=top.length?top[0][1]:1;
+ document.getElementById("genreBars").innerHTML=top.map(([g,n])=>`
+ <div class="genre-row"><button data-genre="${safeText(g)}">${safeText(g)}</button><div class="bar"><span style="width:${Math.max(5,n/max*100)}%"></span></div><span>${Math.round(n/allMovies.length*100)}%</span></div>`).join("");
+ document.querySelectorAll("#genreBars [data-genre]").forEach(b=>b.addEventListener("click",()=>filterGenre(b.dataset.genre)));
+}
+async function recommend(title){
+ title=(title||document.getElementById("movieSearch").value).trim();
+ if(!title)return setMessage("Type a movie title first.",true);
+ document.getElementById("movieSearch").value=title;
+ document.getElementById("resultsTitle").textContent="Films like "+title;
+ document.getElementById("resultsSubtitle").textContent="Recommendations from the original dataset";
+ setMessage("Finding films similar to "+title+"…");
+ try{
+   const url=API_BASE+"/api/recommend?title="+encodeURIComponent(title)+"&limit=6";
+   const r=await fetch(url,{headers:API_HEADERS});
+   const data=await r.json();
+   if(!r.ok)throw new Error(data.error || data.message || "Movie not found. Choose a title from the suggestions.");
+   const recs=Array.isArray(data)?data:(data.recommendations || data.results || data.movies || []);
+   if(!recs.length)throw new Error("No recommendations were returned for this title.");
+   renderCards("movieCards",recs);
+   document.getElementById("collectionSection").classList.add("hidden");
+   setMessage("Showing "+recs.length+" recommendations for "+title+". Click any result to explore similar films.");
+   document.getElementById("resultsSection").scrollIntoView({behavior:"smooth",block:"start"});
+ }catch(e){setMessage(e.message,true);}
+}
+function showAll(){
+ activeMode="all";
+ document.getElementById("resultsTitle").textContent="Explore all movies";
+ document.getElementById("resultsSubtitle").textContent="Browse the complete collection. Select a movie to get similar recommendations.";
+ document.getElementById("collectionSection").classList.add("hidden");
+ renderCards("movieCards",allMovies);
+ setMessage("Showing all "+allMovies.length+" movies.");
+}
+function filterGenre(genre){
+ const filtered=allMovies.filter(m=>getGenre(m).toLowerCase().includes(genre.toLowerCase()));
+ document.getElementById("resultsTitle").textContent=genre+" movies";
+ document.getElementById("resultsSubtitle").textContent=filtered.length+" titles in this genre";
+ document.getElementById("collectionSection").classList.add("hidden");
+ renderCards("movieCards",filtered);
+ setMessage("Found "+filtered.length+" movies matching "+genre+".");
+ document.getElementById("resultsSection").scrollIntoView({behavior:"smooth"});
+}
+function showFavourites(){
+ const fav=allMovies.filter(m=>favourites.includes(getTitle(m)));
+ document.getElementById("resultsTitle").textContent="Your favourites";
+ document.getElementById("resultsSubtitle").textContent="Your saved picks on this browser";
+ document.getElementById("collectionSection").classList.add("hidden");
+ renderCards("movieCards",fav);
+ setMessage(fav.length ? fav.length+" saved favourites." : "Your favourites list is empty. Use the browser's saved list after adding favourite titles.");
+}
+document.getElementById("findBtn").addEventListener("click",()=>recommend());
+document.getElementById("movieSearch").addEventListener("keydown",e=>{if(e.key==="Enter")recommend();});
+document.querySelectorAll("[data-title]").forEach(b=>b.addEventListener("click",()=>recommend(b.dataset.title)));
+document.querySelectorAll("[data-genre]").forEach(b=>b.addEventListener("click",()=>filterGenre(b.dataset.genre)));
+document.getElementById("exploreBtn").addEventListener("click",showAll);
+document.getElementById("viewAllBtn").addEventListener("click",showAll);
+document.getElementById("collectionAllBtn").addEventListener("click",showAll);
+document.getElementById("trendingAll").addEventListener("click",showAll);
+document.getElementById("genresBtn")?.addEventListener("click",()=>document.getElementById("genreBars").scrollIntoView({behavior:"smooth"}));
+document.getElementById("genreAll").addEventListener("click",()=>document.getElementById("genreBars").scrollIntoView({behavior:"smooth"}));
+document.getElementById("favouritesBtn")?.addEventListener("click", showFavourites);
+document.getElementById("homeBtn").addEventListener("click",()=>{
+ document.getElementById("collectionSection").classList.remove("hidden");
+ document.getElementById("resultsTitle").textContent="Recommended for you";
+ document.getElementById("resultsSubtitle").textContent="Explore the collection or search for a film to get recommendations";
+ const ranked=shuffledTop();renderCards("movieCards",ranked.slice(0,6));renderCards("collectionCards",ranked.slice(6,12));setMessage("Home · "+allMovies.length+" movies loaded.");
+});
+loadMovies();
+</script>
+
+<!-- MovieMind movie details -->
+<div id="movieDetailOverlay">
+  <div id="movieDetailBox" role="dialog" aria-modal="true"
+       aria-labelledby="movieDetailTitle">
+    <button id="movieDetailClose" type="button">Close ✕</button>
+    <div id="movieDetailContent"></div>
+  </div>
+</div>
+<script>
+(function () {
+  const overlay = document.getElementById("movieDetailOverlay");
+  const content = document.getElementById("movieDetailContent");
+  if (!overlay || !content) return;
+
+  const close = () => { overlay.style.display = "none"; };
+  document.getElementById("movieDetailClose").addEventListener("click", close);
+  overlay.addEventListener("click", e => {
+    if (e.target === overlay) close();
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") close();
+  });
+
+  const get = (m, keys) => {
+    for (const key of keys) {
+      const value = m && m[key];
+      if (value !== null && value !== undefined &&
+          String(value).trim() !== "" &&
+          String(value).toLowerCase() !== "nan") {
+        return String(value);
+      }
+    }
+    return "";
+  };
+
+  const escapeHTML = value => String(value).replace(/[&<>"']/g, ch => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;",
+    '"': "&quot;", "'": "&#39;"
+  }[ch]));
+
+  const titleKeys = ["Series_Title", "title", "Title", "name"];
+  const normalise = value => String(value || "").trim().toLowerCase();
+
+  // MovieMind integrated card details fix
+  window.openMovieDetails = function(clickedTitle) {
+    const movies = Array.isArray(allMovies) ? allMovies : [];
+    const normaliseTitle = value => String(value || "").trim().toLowerCase();
+    const movie = movies.find(m =>
+      normaliseTitle(get(m, titleKeys)) === normaliseTitle(clickedTitle)
+    );
+    if (!movie) return;
+
+    const title = get(movie, titleKeys) || clickedTitle;
+    const overview = get(movie, ["Overview", "overview", "Description", "description"]) || "No description available.";
+    const rating = get(movie, ["IMDB_Rating", "imdb_rating", "rating", "Rating"]) || "N/A";
+    const year = get(movie, ["Released_Year", "release_year", "year", "Year"]) || "N/A";
+    const genre = get(movie, ["Genre", "genre"]) || "N/A";
+    const director = get(movie, ["Director", "director"]) || "N/A";
+    const cast = [
+      get(movie, ["Star1", "star1"]),
+      get(movie, ["Star2", "star2"]),
+      get(movie, ["Star3", "star3"]),
+      get(movie, ["Star4", "star4"])
+    ].filter(Boolean).join(", ") || "N/A";
+
+    content.innerHTML =
+      '<h2 id="movieDetailTitle">' + escapeHTML(title) + '</h2>' +
+      '<p class="detail-rating">IMDb rating: ' + escapeHTML(rating) + '</p>' +
+      '<p><strong>Release year:</strong> ' + escapeHTML(year) + '</p>' +
+      '<p><strong>Genre:</strong> ' + escapeHTML(genre) + '</p>' +
+      '<p><strong>Director:</strong> ' + escapeHTML(director) + '</p>' +
+      '<p><strong>Cast:</strong> ' + escapeHTML(cast) + '</p>' +
+      '<h3>Overview</h3><p>' + escapeHTML(overview) + '</p>';
+
+    overlay.dataset.movieTitle = title;
+    overlay.style.display = "flex";
+  };
+
+  document.getElementById("movieDetailRecommend").addEventListener("click", async function() {
+    const title = overlay.dataset.movieTitle || "";
+    close();
+
+    if (!title.trim()) {
+      console.error("No movie title was stored in the details popup.");
+      return;
+    }
+
+    const searchBox = document.getElementById("movieSearch");
+    if (searchBox) searchBox.value = title;
+
+    if (typeof recommend === "function") {
+      await recommend(title);
+
+      const resultsSection = document.getElementById("resultsSection");
+      if (resultsSection) {
+        resultsSection.classList.remove("hidden");
+        resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    } else {
+      console.error("MovieMind recommendation function was not found.");
+    }
+  });
+
+
+  document.addEventListener("click", function (event) {
+    const card = event.target.closest(".movie-card, .trend");
+    if (!card) return;
+
+    // Use the card's title when available; otherwise read its visible heading.
+    const heading = card.querySelector(
+      ".movie-title, h3, h2, .title, .movie-name"
+    );
+    const clickedTitle = card.dataset.title ||
+      (heading ? heading.textContent.trim() : "");
+
+    if (!clickedTitle || !Array.isArray(window.allMovies)) return;
+
+    const movie = window.allMovies.find(m =>
+      normalise(get(m, titleKeys)) === normalise(clickedTitle)
+    );
+    if (!movie) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const title = get(movie, titleKeys) || clickedTitle;
+    const overview = get(movie, [
+      "Overview", "overview", "Description", "description"
+    ]) || "No description is available in the dataset.";
+
+    const rating = get(movie, [
+      "IMDB_Rating", "imdb_rating", "rating", "Rating"
+    ]) || "N/A";
+
+    const year = get(movie, [
+      "Released_Year", "release_year", "year", "Year"
+    ]) || "N/A";
+
+    const genre = get(movie, ["Genre", "genre"]) || "N/A";
+    const director = get(movie, ["Director", "director"]) || "N/A";
+
+    const cast = [
+      get(movie, ["Star1", "star1"]),
+      get(movie, ["Star2", "star2"]),
+      get(movie, ["Star3", "star3"]),
+      get(movie, ["Star4", "star4"])
+    ].filter(Boolean).join(", ") || "N/A";
+
+    content.innerHTML =
+      '<h2 id="movieDetailTitle">' + escapeHTML(title) + '</h2>' +
+      '<p class="detail-rating">IMDb rating: ' + escapeHTML(rating) + '</p>' +
+      '<p><strong>Release year:</strong> ' + escapeHTML(year) + '</p>' +
+      '<p><strong>Genre:</strong> ' + escapeHTML(genre) + '</p>' +
+      '<p><strong>Director:</strong> ' + escapeHTML(director) + '</p>' +
+      '<p><strong>Cast:</strong> ' + escapeHTML(cast) + '</p>' +
+      '<h3>Overview</h3><p>' + escapeHTML(overview) + '</p>';
+
+    overlay.style.display = "flex";
+  });
+})();
+</script>
+
+
+<script>
+// MOVIEMIND_CLICK_WIRING_V2
+document.addEventListener("click", function(event) {
+  const card = event.target.closest(".movie-card, .trend");
+  if (!card) return;
+
+  const titleElement = card.querySelector(
+    ".movie-title, .trend-title, .movie-info h3, .movie-info h2, strong, h3, h2"
+  );
+
+  const title = (card.dataset.title ||
+    (titleElement && titleElement.textContent) || "").trim();
+
+  if (!title) {
+    console.warn("MovieMind: clicked card has no readable title.", card);
+    return;
+  }
+
+  if (typeof window.openMovieDetails !== "function") {
+    console.error("MovieMind: details function is unavailable.");
+    return;
+  }
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  window.openMovieDetails(title);
+}, true);
+</script>
+
+
+<script>
+// MovieMind details fix: use the existing API, not undefined allMovies/getTitle.
+window.openMovieDetails = async function(clickedTitle) {
+  const norm = value => String(value ?? "").trim().toLowerCase();
+  const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  }[ch]));
+
+  const overlay = document.getElementById("movieDetailOverlay");
+  const content = document.getElementById("movieDetailContent");
+  if (!overlay || !content) {
+    console.error("MovieMind details markup is missing.");
+    return;
+  }
+
+  content.innerHTML = "<p>Loading movie details…</p>";
+  overlay.style.display = "flex";
+
+  try {
+    const response = await fetch(
+      API_BASE.replace(/\/$/, "") + "/api/all-movies"
+    );
+    if (!response.ok) throw new Error("Movie API returned " + response.status);
+    const records = await response.json();
+    const movie = records.find(m =>
+      norm(m.Display_Title ?? m.Series_Title ?? m.title ?? m.Title) === norm(clickedTitle)
+    );
+
+    if (!movie) {
+      content.innerHTML =
+        "<h2>" + esc(clickedTitle) + "</h2><p>Movie details were not found in the API response.</p>";
+      return;
+    }
+
+    const get = (...keys) => {
+      for (const key of keys) {
+        const value = movie[key];
+        if (value !== null && value !== undefined && String(value).trim() !== "") {
+          return String(value);
+        }
+      }
+      return "Not available";
+    };
+
+    const title = get("Display_Title", "Series_Title", "title", "Title");
+    const year = get("Released_Year", "release_year", "year");
+    const genre = get("Genre", "genre");
+    const rating = get("IMDB_Rating", "IMDb Rating", "rating");
+    const poster = get("Poster_Link", "poster", "poster_url");
+    const posterHTML = poster !== "Not available"
+      ? '<img src="' + esc(poster) + '" alt="" style="width:130px;max-height:195px;object-fit:contain;border-radius:8px" onerror="this.style.display=\'none\'">'
+      : "";
+
+    content.innerHTML =
+      '<div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">' +
+        posterHTML +
+        '<div style="flex:1;min-width:180px;overflow-wrap:anywhere">' +
+          '<h2 style="margin-top:0">' + esc(title) + '</h2>' +
+          '<p>★ IMDb rating: ' + esc(rating) + '</p>' +
+          '<p><strong>Release year:</strong> ' + esc(year) + '</p>' +
+          '<p><strong>Genre:</strong> ' + esc(genre) + '</p>' +
+          '<h3>Overview</h3>' +
+          '<p>' + esc(get("Overview", "overview", "Plot") === "Not available"
+              ? "No synopsis available for this title."
+              : get("Overview", "overview", "Plot")) + '</p>' +
+          '<p><strong>Director:</strong> ' + esc(get("Director", "director")) + '</p>' +
+          '<p><strong>Cast:</strong> ' + esc([
+            get("Star1", "star1"), get("Star2", "star2"),
+            get("Star3", "star3"), get("Star4", "star4")
+          ].filter(v => v !== "Not available").join(", ") || "Not available") + '</p>' +
+          '<a href="https://www.justwatch.com/in/search?q=' +
+             encodeURIComponent(title) +
+             '" target="_blank" rel="noopener noreferrer">Check streaming availability ↗</a>' +
+        '</div>' +
+      '</div>';
+  } catch (error) {
+    console.error("MovieMind details error:", error);
+    content.innerHTML =
+      "<h2>Could not load details</h2><p>Check the API connection and try again.</p>";
+  }
+};
+</script>
+
+</body>
+</html>
