@@ -44,7 +44,7 @@ def movie_record(row):
 
 @app.route("/")
 def home():
-    return send_from_directory(STATIC_DIR, "moviemind.html")
+    return send_from_directory(BASE_DIR, "moviemind.html")
 
 @app.route("/api/health")
 def health():
