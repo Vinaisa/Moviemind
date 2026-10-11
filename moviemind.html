@@ -1184,9 +1184,30 @@ window.openMovieDetails = async function(clickedTitle) {
     const genre = get("Genre", "genre");
     const rating = get("IMDB_Rating", "IMDb Rating", "rating");
     const poster = get("Poster_Link", "poster", "poster_url");
-    const posterHTML = poster !== "Not available"
-      ? '<img src="' + esc(poster) + '" alt="" style="width:130px;max-height:195px;object-fit:contain;border-radius:8px" onerror="this.style.display=\'none\'">'
-      : "";
+    const poster = get("Poster_Link", "poster", "poster_url");
+
+const castValue = Array.isArray(movie.cast)
+  ? movie.cast
+  : [
+      movie.Star1 ?? movie.star1,
+      movie.Star2 ?? movie.star2,
+      movie.Star3 ?? movie.star3,
+      movie.Star4 ?? movie.star4
+    ];
+
+const cast = castValue
+  .filter(v =>
+    v != null &&
+    String(v).trim() !== "" &&
+    String(v).toLowerCase() !== "nan" &&
+    String(v) !== "Not available"
+  )
+  .map(v => String(v).trim())
+  .join(", ") || "Not available";
+
+const posterHTML = poster !== "Not available"
+  ? '<img src="' + esc(poster) + '" alt="" style="width:130px;max-height:195px;object-fit:contain;border-radius:8px" onerror="this.style.display=\'none\'">'
+  : "";
 
     content.innerHTML =
       '<div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">' +
@@ -1201,10 +1222,7 @@ window.openMovieDetails = async function(clickedTitle) {
               ? "No synopsis available for this title."
               : get("Overview", "overview", "Plot")) + '</p>' +
           '<p><strong>Director:</strong> ' + esc(get("Director", "director")) + '</p>' +
-          '<p><strong>Cast:</strong> ' + esc([
-            get("Star1", "star1"), get("Star2", "star2"),
-            get("Star3", "star3"), get("Star4", "star4")
-          ].filter(v => v !== "Not available").join(", ") || "Not available") + '</p>' +
+          '<p><strong>Cast:</strong> ' + esc(cast) + '</p>' +
           '<a href="https://www.justwatch.com/in/search?q=' +
              encodeURIComponent(title) +
              '" target="_blank" rel="noopener noreferrer">Check streaming availability ↗</a>' +
