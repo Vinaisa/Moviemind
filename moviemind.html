@@ -1000,12 +1000,15 @@ loadMovies();
     const year = get(movie, ["Released_Year", "release_year", "year", "Year"]) || "N/A";
     const genre = get(movie, ["Genre", "genre"]) || "N/A";
     const director = get(movie, ["Director", "director"]) || "N/A";
-    const cast = [
-      get(movie, ["Star1", "star1"]),
-      get(movie, ["Star2", "star2"]),
-      get(movie, ["Star3", "star3"]),
-      get(movie, ["Star4", "star4"])
-    ].filter(Boolean).join(", ") || "N/A";
+    
+const cast = Array.isArray(movie.cast)
+    ? movie.cast.filter(Boolean).join(", ") || "N/A"
+    : [
+        get(movie, ["Star1", "star1"]),
+        get(movie, ["Star2", "star2"]),
+        get(movie, ["Star3", "star3"]),
+        get(movie, ["Star4", "star4"])
+      ].filter(Boolean).join(", ") || "N/A";
 
     content.innerHTML =
       '<h2 id="movieDetailTitle">' + escapeHTML(title) + '</h2>' +
